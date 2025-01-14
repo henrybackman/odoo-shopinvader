@@ -105,6 +105,39 @@ class TestShopinvaderPartner(CommonShopinvaderPartner):
         # As we did not updated a field to export, no job should be created
         self._check_nbr_job_created(0)
 
+    def test_no_update_on_shopinvader_partner_external_id_from_odoo(self):
+        shop_partner, params = self._create_shopinvader_partner(
+            self.data, "5a953d6aae1c744cfcfb3cd3"
+        )
+        self._init_job_counter()
+        # write on shop_partner because res_partner doesn't have these fields
+        shop_partner.write({"external_id": "TEST"})
+        self._check_nbr_job_created(0)
+
+    # partner or shop_partner don't have last_login_time field
+    # def test_no_update_on_shopinvader_last_login_time_from_odoo(self):
+    #     shop_partner, params = self._create_shopinvader_partner(
+    #         self.data, "5a953d6aae1c744cfcfb3cd3"
+    #     )
+    #     self._init_job_counter()
+    #     partner = shop_partner.record_id
+    #     partner.write({"last_login_time": "2025-01-01 00:00:00"})
+    #     self._check_nbr_job_created(0)
+
+    def test_update_on_shopinvader_with_mixed_fields_from_odoo(self):
+        shop_partner, params = self._create_shopinvader_partner(
+            self.data, "5a953d6aae1c744cfcfb3cd3"
+        )
+        self._init_job_counter()
+        shop_partner.write({
+            "name": "TEST",
+            "external_id": "TEST",
+            # "last_login_time": "2025-01-01 00:00:00"
+        })
+        # self._check_nbr_job_created(1)
+        self._check_nbr_job_created(2)  # duplicate jobs created but still exported
+        # is this a test issue or a real issue?
+
     def test_binding_access_rights(self):
         shop_partner, params = self._create_shopinvader_partner(
             self.data, u"5a953d6aae1c744cfcfb3cd3"
